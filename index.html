@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fornecedores Green Village</title>
+<meta name="robots" content="noindex">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --verde: #2e7d32; --verde-esc: #1b5e20; --verde-claro: #e8f5e9;
+    --texto: #1f2a1f; --sub: #5f6b5f; --borda: #dfe6df; --fundo: #f5f7f4;
+    --card: #ffffff; --estrela: #f5a623; --erro: #c62828; --alerta: #fff4e5; --alerta-txt: #8a5300;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: var(--fundo); color: var(--texto); font-size: 15px; }
+  [hidden] { display: none !important; }
+  header { background: #fff; color: var(--texto); padding: 10px 16px 0; position: sticky; top: 0; z-index: 5;
+           border-bottom: 3px solid var(--verde); box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+  .marca { display: flex; align-items: center; gap: 14px; }
+  .marca img { height: 64px; width: auto; display: block; }
+  .marca h1 { margin: 0; font-size: 18px; color: var(--verde-esc); }
+  .marca .sub { font-size: 13px; color: var(--sub); }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  .cabtop { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 8px; }
+  .quem { font-size: 13px; color: var(--sub); text-align: right; }
+  .sair { background: none; border: 0; padding: 0; color: var(--verde-esc); text-decoration: underline; font-size: 13px; }
+  .login-box { display: grid; gap: 14px; justify-items: center; text-align: center; }
+  #botaoGoogle { min-height: 44px; }
+  .quem b { color: var(--texto); }
+  .abas { display: flex; gap: 4px; }
+  .abas button { background: transparent; border: 0; color: var(--sub); padding: 10px 14px; font-weight: 600;
+                 border-bottom: 3px solid transparent; margin-bottom: -3px; }
+  .abas button.on { color: var(--verde-esc); border-bottom-color: var(--verde-esc); }
+  .badge { background: #ffb300; color: #3e2700; border-radius: 999px; padding: 1px 7px; font-size: 12px; margin-left: 4px; }
+  .barra { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .barra input, .barra select { flex: 1 1 160px; min-width: 0; }
+  main { padding: 16px; }
+  .topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+  .contagem { color: var(--sub); font-size: 13px; }
+  button { font: inherit; cursor: pointer; }
+  .btn { background: var(--verde); color: #fff; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; }
+  .btn:hover { background: var(--verde-esc); }
+  .btn.sec { background: #fff; color: var(--verde); border: 1px solid var(--verde); }
+  .btn.perigo { background: #fff; color: var(--erro); border: 1px solid var(--erro); }
+  .btn.peq { padding: 6px 10px; font-size: 13px; }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 12px; padding: 14px; cursor: pointer;
+          display: flex; flex-direction: column; gap: 6px; transition: box-shadow .15s; }
+  .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .card.inativo { opacity: .55; }
+  .card h3 { margin: 0; font-size: 16px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag { display: inline-block; background: var(--verde-claro); color: var(--verde-esc); border-radius: 999px;
+         padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .tag.cinza { background: #eee; color: #666; }
+  .estrelas { color: var(--estrela); letter-spacing: 1px; }
+  .muted { color: var(--sub); font-size: 13px; }
+  .vazio { text-align: center; padding: 40px 16px; color: var(--sub); grid-column: 1 / -1; }
+  .painel { background: #fff; border: 1px solid var(--borda); border-radius: 14px; padding: 22px; max-width: 520px; margin: 24px auto; }
+  .painel h2 { margin-top: 0; }
+  .aviso { background: var(--alerta); color: var(--alerta-txt); border-radius: 10px; padding: 12px; font-size: 14px; margin: 10px 0; }
+  section.bloco { background: #fff; border: 1px solid var(--borda); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  section.bloco h2 { margin: 0 0 10px; font-size: 17px; }
+  .linha { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--borda); flex-wrap: wrap; }
+  .linha:first-of-type { border-top: 0; }
+  .linha .info { flex: 1 1 220px; min-width: 0; }
+  .linha .info b { display: block; }
+  .linha select, .linha input[type=text] { width: auto; flex: 0 1 auto; }
+  /* Modal */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: flex-start;
+           justify-content: center; padding: 24px 12px; overflow-y: auto; z-index: 10; }
+  .modal.aberto { display: flex; }
+  .caixa { background: #fff; border-radius: 14px; width: 100%; max-width: 640px; padding: 20px; position: relative; }
+  .fechar { position: absolute; right: 12px; top: 10px; background: none; border: 0; font-size: 26px; color: var(--sub); }
+  .caixa h2 { margin: 0 32px 4px 0; font-size: 20px; }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 12px; }
+  form .full { grid-column: 1 / -1; }
+  label { font-size: 13px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+  label small { font-weight: 400; color: var(--sub); }
+  input, select, textarea { padding: 9px 10px; border: 1px solid var(--borda); border-radius: 8px; font: inherit; width: 100%; background: #fff; }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--verde); border-color: transparent; }
+  fieldset { border: 1px solid var(--borda); border-radius: 10px; padding: 10px 12px; margin: 0; }
+  legend { font-size: 13px; font-weight: 700; color: var(--verde-esc); padding: 0 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips label { flex-direction: row; align-items: center; gap: 6px; font-weight: 500; border: 1px solid var(--borda);
+                 border-radius: 999px; padding: 5px 12px; cursor: pointer; user-select: none; }
+  .chips input { width: auto; margin: 0; accent-color: var(--verde); }
+  .chips label:has(input:checked) { background: var(--verde-claro); border-color: var(--verde); color: var(--verde-esc); }
+  .acoes { display: flex; gap: 8px; justify-content: flex-end; grid-column: 1 / -1; margin-top: 6px; flex-wrap: wrap; }
+  .contatos { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .contatos a { text-decoration: none; background: var(--verde-claro); color: var(--verde-esc); padding: 8px 12px;
+                border-radius: 8px; font-weight: 600; font-size: 14px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: 14px; }
+  dt { color: var(--sub); }
+  dd { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  .resumo { display: flex; align-items: center; gap: 14px; background: var(--verde-claro); padding: 12px; border-radius: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .resumo .num { font-size: 32px; font-weight: 800; color: var(--verde-esc); }
+  .aval { border-top: 1px solid var(--borda); padding: 12px 0; }
+  .aval.oculta { opacity: .5; }
+  .aval .cab { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .aval p { margin: 6px 0 0; white-space: pre-wrap; word-break: break-word; }
+  .crit { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--sub); margin-top: 4px; }
+  .star-input { display: inline-flex; gap: 2px; }
+  .star-input button { background: none; border: 0; font-size: 28px; color: #ccc; padding: 0 2px; line-height: 1; }
+  .star-input.peq button { font-size: 20px; }
+  .star-input button.on { color: var(--estrela); }
+  .radio { display: flex; gap: 14px; }
+  .radio label { flex-direction: row; font-weight: 400; align-items: center; gap: 6px; }
+  .radio input { width: auto; }
+  .erro { color: var(--erro); font-size: 14px; grid-column: 1 / -1; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #263226; color: #fff;
+           padding: 12px 18px; border-radius: 10px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 20; max-width: 90vw; }
+  .toast.show { opacity: 1; }
+  .loading { text-align: center; padding: 40px; color: var(--sub); }
+  .termo { border: 1px solid var(--borda); border-radius: 10px; padding: 4px 14px; max-height: 260px; overflow-y: auto;
+           background: #fafcf9; font-size: 13.5px; line-height: 1.45; }
+  .termo h3 { font-size: 15px; margin: 10px 0 6px; color: var(--verde-esc); }
+  .termo h4 { font-size: 13.5px; margin: 12px 0 2px; }
+  .termo p, .termo ul { margin: 2px 0 6px; }
+  .termo ul { padding-left: 20px; }
+  .modal .termo { max-height: none; border: 0; padding: 0; background: none; }
+  .aceite { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; font-weight: 500; font-size: 14px;
+            background: var(--verde-claro); border-radius: 10px; padding: 12px; cursor: pointer; }
+  .aceite input { width: 18px; height: 18px; margin-top: 2px; flex: none; accent-color: var(--verde); }
+  footer { text-align: center; padding: 20px 16px 30px; font-size: 13px; color: var(--sub); }
+  footer a { color: var(--verde-esc); }
+  @media (max-width: 560px) {
+    form { grid-template-columns: 1fr; }
+    .caixa { padding: 16px; }
+    .quem { text-align: left; }
+    .marca img { height: 48px; }
+    .marca h1 { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="cabtop">
+      <div class="marca">
+        <img src="data:image/jpeg;base64,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" alt="Green Village Residence" width="124" height="64">
+        <div>
+          <h1>Fornecedores</h1>
+          <div class="sub">Indicações e avaliações dos moradores</div>
+        </div>
+      </div>
+      <div class="quem" id="quem"></div>
+    </div>
+    <nav class="abas" id="abas" hidden>
+      <button class="on" data-aba="fornecedores">Fornecedores</button>
+      <button data-aba="admin" id="abaAdmin" hidden>Administração <span class="badge" id="badgePend" hidden></span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="telaCarregando" class="loading">Verificando seu acesso…</div>
+
+  <!-- Login -->
+  <div id="telaLogin" class="painel" hidden>
+    <div class="login-box">
+      <h2 style="margin:0">Entrar</h2>
+      <p class="muted" style="margin:0">App exclusivo para moradores do Green Village Residence.<br>Entre com a sua conta Google.</p>
+      <div id="botaoGoogle"></div>
+      <p class="erro" id="erroLogin" style="margin:0"></p>
+      <p class="muted" style="margin:0;font-size:13px">Se você tem mais de uma conta Google, o próprio Google vai perguntar qual usar.</p>
+    </div>
+  </div>
+
+  <!-- Solicitação de acesso -->
+  <div id="telaSolicitar" class="painel" hidden>
+    <h2>Solicitar acesso</h2>
+    <p class="muted">Você entrou como <b id="solEmail"></b>. O app é exclusivo para moradores. Informe seus dados; um administrador vai aprovar seu acesso.</p>
+    <div class="aviso" id="solRecusado" hidden>Sua solicitação anterior foi recusada. Confira os dados e envie de novo, ou fale com a administração.</div>
+    <form id="fSolicitar" style="grid-template-columns:1fr 1fr">
+      <label class="full">Nome completo *<input name="nome" required maxlength="80" autocomplete="name"></label>
+      <label>Bloco *
+        <select name="bloco" required>
+          <option value="">Selecione…</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+        </select>
+      </label>
+      <label>Apartamento *<input name="apartamento" required maxlength="20"></label>
+      <div class="full termo" data-termo></div>
+      <label class="full aceite"><input type="checkbox" name="aceite" required>
+        <span data-aceite-texto></span></label>
+      <div class="erro" id="erroSolicitar"></div>
+      <div class="acoes"><button class="btn" type="submit">Enviar solicitação</button></div>
+    </form>
+  </div>
+
+  <!-- Aguardando aprovação -->
+  <div id="telaAguardando" class="painel" hidden>
+    <h2>⏳ Aguardando aprovação</h2>
+    <p>Recebemos sua solicitação:</p>
+    <p id="aguardDados" style="background:var(--verde-claro);padding:12px;border-radius:10px"></p>
+    <p class="muted">Você receberá um e-mail quando for aprovado. Também pode verificar aqui.</p>
+    <div class="acoes" style="justify-content:flex-start">
+      <button class="btn" onclick="iniciar()">Verificar novamente</button>
+      <button class="btn sec" onclick="mostrarSolicitar(true)">Corrigir meus dados</button>
+    </div>
+  </div>
+
+  <!-- Aceite do termo (moradores já cadastrados ou nova versão do termo) -->
+  <div id="telaAceite" class="painel" hidden>
+    <h2>Termo de Uso e Privacidade</h2>
+    <p class="muted">Para continuar usando o aplicativo, leia e aceite o termo abaixo.</p>
+    <form id="fAceite" style="grid-template-columns:1fr">
+      <div class="termo" data-termo></div>
+      <label class="aceite"><input type="checkbox" name="aceite" required><span data-aceite-texto></span></label>
+      <div class="erro" id="erroAceite"></div>
+      <div class="acoes"><button class="btn" type="submit">Aceitar e continuar</button></div>
+    </form>
+  </div>
+
+  <!-- Bloqueado -->
+  <div id="telaBloqueado" class="painel" hidden>
+    <h2>Acesso bloqueado</h2>
+    <p>O acesso da conta <b id="bloqEmail"></b> foi bloqueado. Fale com a administração do condomínio.</p>
+  </div>
+
+  <!-- Erro geral -->
+  <div id="telaErro" class="painel" hidden>
+    <h2>Não foi possível carregar</h2>
+    <p id="erroGeral" class="erro"></p>
+    <button class="btn" onclick="iniciar()">Tentar novamente</button>
+  </div>
+
+  <!-- Fornecedores -->
+  <div id="telaFornecedores" hidden>
+    <div class="barra">
+      <input id="busca" type="search" placeholder="Buscar por nome, serviço, observação…">
+      <select id="filtroCategoria"></select>
+      <select id="ordem">
+        <option value="nota">Melhor avaliados</option>
+        <option value="qtd">Mais avaliados</option>
+        <option value="recentes">Cadastrados recentemente</option>
+        <option value="nome">Nome (A–Z)</option>
+      </select>
+    </div>
+    <div class="topo">
+      <span class="contagem" id="contagem"></span>
+      <button class="btn" onclick="abrirCadastro()">+ Cadastrar fornecedor</button>
+    </div>
+    <div id="lista" class="grade"></div>
+  </div>
+
+  <!-- Administração -->
+  <div id="telaAdmin" hidden>
+    <section class="bloco">
+      <h2>Solicitações pendentes</h2>
+      <div id="admPendentes"></div>
+    </section>
+    <section class="bloco">
+      <h2>Categorias</h2>
+      <form id="fNovaCat" style="display:flex;gap:8px;margin:0 0 8px">
+        <input name="Nome" placeholder="Nova categoria" maxlength="60" required>
+        <button class="btn" type="submit" style="white-space:nowrap">Incluir</button>
+      </form>
+      <div id="admCategorias"></div>
+    </section>
+    <section class="bloco">
+      <h2>Cidades</h2>
+      <p class="muted" style="margin-top:-4px">A opção "Outra" aparece sempre no fim da lista, para cidades que não estão aqui.</p>
+      <form id="fNovaCidade" style="display:flex;gap:8px;margin:0 0 8px">
+        <input name="Nome" placeholder="Nova cidade" maxlength="60" required>
+        <button class="btn" type="submit" style="white-space:nowrap">Incluir</button>
+      </form>
+      <div id="admCidades"></div>
+    </section>
+    <section class="bloco">
+      <h2>Moradores</h2>
+      <input id="buscaUsuarios" type="search" placeholder="Filtrar por nome, bloco, apto ou e-mail" style="margin-bottom:6px">
+      <div id="admUsuarios"></div>
+    </section>
+  </div>
+</main>
+
+<footer><a href="#" id="linkTermo">Termo de Uso e Privacidade</a> · <a href="privacidade.html">Política de Privacidade</a> ·Uso exclusivo dos moradores do Green Village Residence</footer>
+
+<!-- Termo (releitura) -->
+<div class="modal" id="mTermo">
+  <div class="caixa">
+    <button class="fechar" onclick="fechar('mTermo')" aria-label="Fechar">×</button>
+    <div class="termo" data-termo></div>
+  </div>
+</div>
+
+<!-- Texto do termo: ao alterar, aumente TERMO_VERSAO no Code.gs da API -->
+<template id="tplTermo">
+  <h3>Termo de Uso e Privacidade — Fornecedores Green Village Residence</h3>
+  <h4>1. Finalidade</h4>
+  <p>Este aplicativo serve <b>exclusivamente</b> para que moradores do Green Village Residence troquem indicações e avaliações de fornecedores e prestadores de serviço.</p>
+  <h4>2. Dados coletados</h4>
+  <p>Para usar o aplicativo, coletamos:</p>
+  <ul>
+    <li>seu nome, bloco e apartamento;</li>
+    <li>o e-mail da conta Google usada no acesso;</li>
+    <li>o registro do que você cadastra, edita e avalia.</li>
+  </ul>
+  <h4>3. Quem vê os seus dados</h4>
+  <ul>
+    <li><b>Outros moradores aprovados</b> veem seu nome, bloco e apartamento junto às indicações e avaliações que você fizer.</li>
+    <li><b>Seu e-mail</b> fica visível apenas para os administradores do aplicativo.</li>
+    <li>Os dados não são vendidos, divulgados ou compartilhados com terceiros.</li>
+  </ul>
+  <h4>4. Uso interno e sigilo</h4>
+  <p>As informações do aplicativo são de <b>uso interno e restrito aos moradores</b>. Ao aceitar, você se compromete a:</p>
+  <ul>
+    <li>não copiar, fotografar, exportar ou repassar dados de moradores ou avaliações para pessoas de fora do condomínio, nem para grupos externos ou redes sociais;</li>
+    <li>não usar as informações para fins comerciais, publicidade ou contato não solicitado com outros moradores.</li>
+  </ul>
+  <h4>5. Conduta nas avaliações</h4>
+  <ul>
+    <li>Relate apenas experiências <b>reais e próprias</b>, com respeito e sem ofensas, acusações sem fundamento ou linguagem imprópria.</li>
+    <li>Ao cadastrar um fornecedor, informe <b>apenas dados de contato profissionais</b> (telefone, WhatsApp, e-mail, redes comerciais).</li>
+    <li>A administração pode ocultar conteúdos que não respeitem estas regras.</li>
+  </ul>
+  <h4>6. Responsabilidade</h4>
+  <p>As indicações e avaliações são <b>opiniões pessoais dos moradores</b>. A administração do aplicativo e o condomínio não garantem a qualidade, o preço ou o resultado dos serviços. A contratação é de responsabilidade de cada morador.</p>
+  <h4>7. Seus direitos</h4>
+  <ul>
+    <li>Você pode pedir à administração, a qualquer momento, a <b>correção ou exclusão</b> dos seus dados.</li>
+    <li>Ao deixar de morar no condomínio, ou se descumprir estas regras, seu acesso pode ser encerrado.</li>
+  </ul>
+</template>
+<template id="tplAceite"><b>Li e concordo com o Termo de Uso e Privacidade.</b> Declaro que sou morador(a) do Green Village Residence e que vou manter as informações deste aplicativo em sigilo, para uso interno entre moradores.</template>
+
+<!-- Detalhes -->
+<div class="modal" id="mDetalhe">
+  <div class="caixa">
+    <button class="fechar" onclick="fechar('mDetalhe')" aria-label="Fechar">×</button>
+    <div id="detalhe"></div>
+  </div>
+</div>
+
+<!-- Cadastro / edição de fornecedor -->
+<div class="modal" id="mCadastro">
+  <div class="caixa">
+    <button class="fechar" onclick="fechar('mCadastro')" aria-label="Fechar">×</button>
+    <h2 id="cadTitulo">Cadastrar fornecedor</h2>
+    <p class="muted">Campos com * são obrigatórios.</p>
+    <form id="fCadastro">
+      <input type="hidden" name="ID">
+      <label class="full">Nome do fornecedor / empresa *<input name="Nome" required maxlength="120"></label>
+      <fieldset class="full">
+        <legend>Categorias * <span class="muted" style="font-weight:400">(marque todas que se aplicam)</span></legend>
+        <div class="chips" id="cadCategorias"></div>
+        <div class="muted" style="margin-top:6px">Não achou a categoria? Peça à administração para incluir.</div>
+      </fieldset>
+      <label class="full">Serviços oferecidos<small>Ex.: instalação de chuveiro, troca de disjuntor, quadro elétrico</small>
+        <input name="Servicos" maxlength="300"></label>
+      <label>Pessoa de contato<input name="Contato" maxlength="80"></label>
+      <label>Telefone (com DDD) *<input name="Telefone" type="tel" maxlength="30" required placeholder="(48) 99999-9999"></label>
+      <label>WhatsApp<input name="WhatsApp" type="tel" maxlength="30" placeholder="(48) 99999-9999"></label>
+      <label>E-mail<input name="Email" type="email" maxlength="120"></label>
+      <label>Instagram<input name="Instagram" maxlength="80" placeholder="@perfil"></label>
+      <label>Site<input name="Site" maxlength="200" placeholder="https://"></label>
+      <label>Cidade<select name="CidadeSel" id="cadCidade"></select></label>
+      <label id="lblCidadeOutra" hidden>Qual cidade? *<input name="CidadeTexto" maxlength="60"></label>
+      <label class="full">Endereço<input name="Endereco" maxlength="200"></label>
+      <label>Já atende no condomínio?
+        <select name="AtendeCondominio"><option value="">Não sei</option><option>Sim</option><option>Não</option></select>
+      </label>
+      <label>Faixa de preço
+        <select name="FaixaPreco"><option value="">Não sei</option><option>$ Econômico</option><option>$$ Médio</option><option>$$$ Alto</option></select>
+      </label>
+      <label class="full">Observações<textarea name="Observacoes" maxlength="1500" placeholder="Horários, formas de pagamento, se cobra visita, etc."></textarea></label>
+      <div class="muted full" id="cadAutor"></div>
+      <div class="erro" id="erroCadastro"></div>
+      <div class="acoes">
+        <button type="button" class="btn sec" onclick="fechar('mCadastro')">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Avaliação -->
+<div class="modal" id="mAvaliar">
+  <div class="caixa">
+    <button class="fechar" onclick="fechar('mAvaliar')" aria-label="Fechar">×</button>
+    <h2>Avaliar atendimento</h2>
+    <p class="muted" id="avaliarNome"></p>
+    <form id="fAvaliar">
+      <label class="full">Nota geral *<div class="star-input" data-campo="Nota"></div></label>
+      <fieldset class="full">
+        <legend>Critérios (opcional)</legend>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+          <label>Pontualidade<div class="star-input peq" data-campo="Pontualidade"></div></label>
+          <label>Qualidade<div class="star-input peq" data-campo="Qualidade"></div></label>
+          <label>Preço justo<div class="star-input peq" data-campo="Preco"></div></label>
+        </div>
+      </fieldset>
+      <div class="full">
+        <label>Você recomendaria?</label>
+        <div class="radio">
+          <label><input type="radio" name="Recomenda" value="Sim" checked> Sim</label>
+          <label><input type="radio" name="Recomenda" value="Não"> Não</label>
+        </div>
+      </div>
+      <label class="full">Serviço realizado<input name="ServicoRealizado" maxlength="150" placeholder="Ex.: troca de torneira"></label>
+      <label class="full">Relato do atendimento
+        <textarea name="Relato" maxlength="3000" placeholder="Conte como foi: pontualidade, educação, limpeza, se resolveu o problema, garantia…"></textarea>
+      </label>
+      <div class="muted full" id="avAutor"></div>
+      <div class="erro" id="erroAvaliar"></div>
+      <div class="acoes">
+        <button type="button" class="btn sec" onclick="fechar('mAvaliar')">Cancelar</button>
+        <button type="submit" class="btn">Enviar avaliação</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let ME = null;
+  let DADOS = { categorias: [], fornecedores: [] };
+  let CAT = {};            // ID -> categoria
+  let USUARIOS = [];
+  let atual = null;
+  const notas = {};
+
+  /* ---------- utilidades ---------- */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const estrelas = n => { const r = Math.max(0, Math.min(5, Math.round(n))); return '★'.repeat(r) + '☆'.repeat(5 - r); };
+  const dataBr = s => { if (!s) return ''; const d = String(s).slice(0, 10).split('-'); return d.length === 3 ? d[2] + '/' + d[1] + '/' + d[0] : s; };
+  const digitos = s => String(s || '').replace(/\D/g, '');
+  const unidade = (b, a) => [b ? 'Bl. ' + b : '', a ? 'Ap. ' + a : ''].filter(Boolean).join(' / ');
+  const plural = (n, s, p) => n + ' ' + (n === 1 ? s : p);
+  // Indicações importadas do guia podem não ter bloco/apto
+  const quemIndicou = f => [f.criadoPor.nome, unidade(f.criadoPor.bloco, f.criadoPor.apto)].filter(Boolean).join(' · ');
+
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 3200); }
+  function abrir(id) { $(id).classList.add('aberto'); document.body.style.overflow = 'hidden'; }
+  function fechar(id) { $(id).classList.remove('aberto'); if (!document.querySelector('.modal.aberto')) document.body.style.overflow = ''; }
+  document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) fechar(m.id); }));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.aberto').forEach(m => fechar(m.id)); });
+
+  /* ---------- configuração ---------- */
+  const API_URL = 'https://script.google.com/macros/s/AKfycbx4Nv6V6SPZCZWAPcQWuyuHyF1qHep47sAmfAKmPozTAeR_HrmXuxCl1fpSgR_uMEsU/exec';
+  const CLIENT_ID = '117320215313-ilo93komtvd05j498t72cudji0cug7b3.apps.googleusercontent.com';   // ID do cliente OAuth do Google Cloud (o mesmo de GIS_CLIENT_ID na API)
+
+  /* ---------- login com Google ---------- */
+  // O ID token vale ~1 hora; fica guardado só neste navegador
+  let ID_TOKEN = null;
+  function lerToken() {
+    try {
+      const t = localStorage.getItem('gv_id_token');
+      if (!t) return null;
+      const exp = JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).exp;
+      return exp * 1000 - Date.now() > 60000 ? t : null;
+    } catch (e) { return null; }
+  }
+  function guardarToken(t) { ID_TOKEN = t; try { t ? localStorage.setItem('gv_id_token', t) : localStorage.removeItem('gv_id_token'); } catch (e) {} }
+
+  function prepararLogin() {
+    if (!(window.google && google.accounts && google.accounts.id)) { setTimeout(prepararLogin, 150); return; }
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: r => { guardarToken(r.credential); iniciar(); },
+      auto_select: true,
+      use_fedcm_for_prompt: true,
+      itp_support: true
+    });
+    google.accounts.id.renderButton($('botaoGoogle'), {
+      theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', locale: 'pt-BR', width: 260
+    });
+    if (!ID_TOKEN) google.accounts.id.prompt();   // entra sozinho se a pessoa já usou antes
+  }
+
+  function mostrarLogin(msg) {
+    guardarToken(null);
+    $('abas').hidden = true;
+    $('quem').innerHTML = '';
+    $('erroLogin').textContent = msg || '';
+    tela('telaLogin');
+  }
+
+  function sair() {
+    try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    mostrarLogin();
+  }
+
+  async function chamar(acao, dados) {
+    let resp;
+    try {
+      // text/plain evita a checagem extra de CORS; a API lê o corpo como JSON
+      resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ idToken: ID_TOKEN, action: acao, data: dados || {} })
+      });
+    } catch (e) {
+      throw new Error('Sem conexão com o servidor. Verifique sua internet e tente de novo.');
+    }
+    let corpo;
+    try { corpo = await resp.json(); } catch (e) { throw new Error('O servidor não respondeu corretamente. Tente novamente em instantes.'); }
+    if (!corpo.ok) {
+      if (corpo.sessao) { mostrarLogin(corpo.erro); const e = new Error(corpo.erro); e.sessao = true; throw e; }
+      throw new Error(corpo.erro || 'Erro desconhecido.');
+    }
+    return corpo.result;
+  }
+
+  function mensagemErro(e) { return (e && e.message) || String(e); }
+
+  async function comBotao(btn, fn) {
+    btn.disabled = true;
+    try { return await fn(); } finally { btn.disabled = false; }
+  }
+
+  /* ---------- telas ---------- */
+  const TELAS = ['telaCarregando', 'telaLogin', 'telaSolicitar', 'telaAguardando', 'telaAceite', 'telaBloqueado', 'telaErro', 'telaFornecedores', 'telaAdmin'];
+
+  // Termo: o mesmo texto aparece na solicitação, no novo aceite e no rodapé
+  document.querySelectorAll('[data-termo]').forEach(el => el.innerHTML = $('tplTermo').innerHTML);
+  document.querySelectorAll('[data-aceite-texto]').forEach(el => el.innerHTML = $('tplAceite').innerHTML);
+  $('linkTermo').addEventListener('click', e => { e.preventDefault(); abrir('mTermo'); });
+  function tela(id) { TELAS.forEach(t => $(t).hidden = t !== id); }
+
+  const linkSair = ' · <button class="sair" type="button" onclick="sair()">Sair</button>';
+
+  async function iniciar() {
+    if (!ID_TOKEN) ID_TOKEN = lerToken();
+    if (!ID_TOKEN) return mostrarLogin();
+    tela('telaCarregando');
+    $('abas').hidden = true;
+    try {
+      ME = await chamar('me');
+      $('quem').innerHTML = esc(ME.email) + linkSair;
+      if (ME.status === 'APROVADO') return ME.precisaAceite ? mostrarAceite() : carregarApp();
+      if (ME.status === 'PENDENTE') return mostrarAguardando();
+      if (ME.status === 'BLOQUEADO') { $('bloqEmail').textContent = ME.email; return tela('telaBloqueado'); }
+      mostrarSolicitar(false);
+    } catch (e) {
+      if (e.sessao) return;   // já voltou para a tela de login
+      $('erroGeral').textContent = mensagemErro(e); tela('telaErro');
+    }
+  }
+
+  function mostrarSolicitar(corrigindo) {
+    const fm = $('fSolicitar');
+    $('solEmail').textContent = ME.email;
+    $('solRecusado').hidden = ME.status !== 'RECUSADO';
+    fm.nome.value = ME.nome || ''; fm.bloco.value = ME.bloco || ''; fm.apartamento.value = ME.apartamento || '';
+    fm.aceite.checked = false;
+    $('erroSolicitar').textContent = '';
+    tela('telaSolicitar');
+  }
+
+  function mostrarAceite() {
+    $('fAceite').reset(); $('erroAceite').textContent = '';
+    tela('telaAceite');
+  }
+
+  $('fAceite').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const fm = ev.target;
+    if (!fm.aceite.checked) { $('erroAceite').textContent = 'Marque a concordância para continuar.'; return; }
+    comBotao(fm.querySelector('[type=submit]'), async () => {
+      try {
+        ME = await chamar('aceitarTermo', { aceite: true });
+        carregarApp();
+      } catch (e) { $('erroAceite').textContent = e.message; }
+    });
+  });
+
+  function mostrarAguardando() {
+    $('aguardDados').innerHTML = '<b>' + esc(ME.nome) + '</b><br>Bloco ' + esc(ME.bloco) + ' · Apartamento ' + esc(ME.apartamento) + '<br><span class="muted">' + esc(ME.email) + '</span>';
+    tela('telaAguardando');
+  }
+
+  $('fSolicitar').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const fm = ev.target;
+    $('erroSolicitar').textContent = '';
+    if (!fm.aceite.checked) { $('erroSolicitar').textContent = 'É preciso concordar com o Termo de Uso e Privacidade.'; return; }
+    const dados = Object.assign(Object.fromEntries(new FormData(fm)), { aceite: true });
+    comBotao(fm.querySelector('[type=submit]'), async () => {
+      try {
+        ME = await chamar('solicitarAcesso', dados);
+        if (ME.status === 'APROVADO') { if (ME.precisaAceite) mostrarAceite(); else carregarApp(); } else mostrarAguardando();
+      } catch (e) { $('erroSolicitar').textContent = e.message; }
+    });
+  });
+
+  /* ---------- app ---------- */
+  async function carregarApp(manterAba) {
+    try {
+      DADOS = await chamar('dados');
+    } catch (e) {
+      if (e.sessao) return;
+      $('erroGeral').textContent = mensagemErro(e); return tela('telaErro');
+    }
+    const u = DADOS.usuario;
+    ME.perfil = u.perfil;
+    $('quem').innerHTML = '<b>' + esc(u.nome) + '</b>' + (u.perfil === 'ADMIN' ? ' <span class="badge">admin</span>' : '') +
+      '<br>Bloco ' + esc(u.bloco) + ' · Apto ' + esc(u.apartamento) + '<br>' + esc(u.email) + linkSair;
+    CAT = {}; DADOS.categorias.forEach(c => CAT[c.ID] = c);
+    $('abas').hidden = false;
+    $('abaAdmin').hidden = u.perfil !== 'ADMIN';
+    $('badgePend').hidden = !DADOS.pendentes;
+    $('badgePend').textContent = DADOS.pendentes;
+    montarFiltroCategorias();
+    renderLista();
+    trocarAba(manterAba && u.perfil === 'ADMIN' ? manterAba : 'fornecedores');
+  }
+
+  function trocarAba(aba) {
+    document.querySelectorAll('#abas button').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
+    if (aba === 'admin') { tela('telaAdmin'); carregarAdmin(); }
+    else tela('telaFornecedores');
+  }
+  document.querySelectorAll('#abas button').forEach(b => b.addEventListener('click', () => trocarAba(b.dataset.aba)));
+
+  const nomesCats = f => f.categorias.map(id => CAT[id]).filter(Boolean);
+
+  function montarFiltroCategorias() {
+    const usadas = new Set();
+    DADOS.fornecedores.forEach(f => f.categorias.forEach(c => usadas.add(c)));
+    const sel = $('filtroCategoria'), v = sel.value;
+    sel.innerHTML = '<option value="">Todas as categorias</option>' +
+      DADOS.categorias.filter(c => usadas.has(c.ID)).map(c => '<option value="' + esc(c.ID) + '">' + esc(c.Nome) + '</option>').join('');
+    sel.value = usadas.has(v) ? v : '';
+  }
+
+  function renderLista() {
+    const termo = semAcento($('busca').value.trim());
+    const cat = $('filtroCategoria').value;
+    const ordem = $('ordem').value;
+    const lista = DADOS.fornecedores.filter(f =>
+      (!cat || f.categorias.indexOf(cat) !== -1) &&
+      (!termo || semAcento([f.Nome, f.Servicos, f.Observacoes, f.Contato, f.Cidade].concat(nomesCats(f).map(c => c.Nome)).join(' ')).includes(termo)));
+
+    const cmp = {
+      nota: (a, b) => b.media - a.media || b.qtdAvaliacoes - a.qtdAvaliacoes || a.Nome.localeCompare(b.Nome, 'pt-BR'),
+      qtd: (a, b) => b.qtdAvaliacoes - a.qtdAvaliacoes || b.media - a.media,
+      recentes: (a, b) => String(b.DataCadastro).localeCompare(String(a.DataCadastro)),
+      nome: (a, b) => a.Nome.localeCompare(b.Nome, 'pt-BR')
+    }[ordem];
+    lista.sort(cmp);
+
+    $('contagem').textContent = plural(lista.length, 'fornecedor', 'fornecedores');
+    if (!lista.length) {
+      $('lista').innerHTML = '<div class="vazio">' + (DADOS.fornecedores.length
+        ? 'Nenhum fornecedor encontrado com esses filtros.'
+        : 'Nenhum fornecedor cadastrado ainda. Seja o primeiro a indicar!') + '</div>';
+      return;
+    }
+    $('lista').innerHTML = lista.map(f => `
+      <div class="card ${f.ativo ? '' : 'inativo'}" data-id="${esc(f.ID)}">
+        <div class="tags">${nomesCats(f).map(c => `<span class="tag">${esc(c.Nome)}</span>`).join('')}
+          ${f.ativo ? '' : '<span class="tag cinza">oculto</span>'}</div>
+        <h3>${esc(f.Nome)}</h3>
+        ${f.qtdAvaliacoes
+          ? `<div><span class="estrelas">${estrelas(f.media)}</span> <b>${f.media.toFixed(1)}</b>
+               <span class="muted">(${plural(f.qtdAvaliacoes, 'avaliação', 'avaliações')}${f.percRecomenda != null ? ' · ' + f.percRecomenda + '% recomendam' : ''})</span></div>`
+          : '<div class="muted">Ainda sem avaliações</div>'}
+        ${f.Servicos ? `<div class="muted">${esc(f.Servicos)}</div>` : ''}
+        <div class="muted">Indicado por ${esc(quemIndicou(f))}</div>
+      </div>`).join('');
+  }
+  $('lista').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) verDetalhe(c.dataset.id); });
+  ['busca', 'filtroCategoria', 'ordem'].forEach(id => $(id).addEventListener('input', renderLista));
+
+  /* ---------- detalhe ---------- */
+  async function verDetalhe(id) {
+    atual = DADOS.fornecedores.find(f => f.ID === id);
+    if (!atual) return;
+    const f = atual, admin = ME.perfil === 'ADMIN';
+    const wa = digitos(f.WhatsApp);
+    const waNum = wa && wa.length <= 11 ? '55' + wa : wa;
+    const site = f.Site ? (/^https?:\/\//i.test(f.Site) ? f.Site : 'https://' + f.Site) : '';
+    const insta = f.Instagram ? f.Instagram.replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/[/?#].*$/, '') : '';
+
+    const campos = [
+      ['Serviços', f.Servicos], ['Contato', f.Contato], ['Telefone', f.Telefone], ['WhatsApp', f.WhatsApp],
+      ['E-mail', f.Email], ['Endereço', f.Endereco], ['Cidade', f.Cidade], ['Atende no condomínio', f.AtendeCondominio],
+      ['Faixa de preço', f.FaixaPreco], ['Observações', f.Observacoes],
+      ['Indicado por', quemIndicou(f) + ' em ' + dataBr(f.DataCadastro)],
+      ['Última edição', f.DataAtualizacao ? dataBr(f.DataAtualizacao) : '']
+    ].filter(c => c[1]);
+
+    $('detalhe').innerHTML = `
+      <div class="tags">${nomesCats(f).map(c => `<span class="tag">${esc(c.Nome)}</span>`).join('')}</div>
+      <h2 style="margin-top:6px">${esc(f.Nome)}</h2>
+      ${f.ativo ? '' : '<div class="aviso">Este fornecedor está oculto para os moradores.</div>'}
+      <div class="contatos">
+        ${wa ? `<a href="https://wa.me/${esc(waNum)}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
+        ${f.Telefone ? `<a href="tel:${esc(digitos(f.Telefone))}">📞 Ligar</a>` : ''}
+        ${f.Email ? `<a href="mailto:${esc(f.Email)}">✉️ E-mail</a>` : ''}
+        ${insta ? `<a href="https://instagram.com/${esc(insta)}" target="_blank" rel="noopener">📷 Instagram</a>` : ''}
+        ${site ? `<a href="${esc(site)}" target="_blank" rel="noopener">🌐 Site</a>` : ''}
+      </div>
+      <dl>${campos.map(c => `<dt>${esc(c[0])}</dt><dd>${esc(c[1])}</dd>`).join('')}</dl>
+      <div class="acoes" style="margin-top:12px">
+        ${f.podeEditar ? '<button class="btn sec peq" id="btEditar">✏️ Editar</button>' : ''}
+        ${admin ? `<button class="btn ${f.ativo ? 'perigo' : 'sec'} peq" id="btModForn">${f.ativo ? 'Ocultar fornecedor' : 'Reativar fornecedor'}</button>` : ''}
+      </div>
+      <div class="resumo">
+        <div class="num">${f.qtdAvaliacoes ? f.media.toFixed(1) : '–'}</div>
+        <div style="flex:1">
+          <div class="estrelas" style="font-size:18px">${estrelas(f.media)}</div>
+          <div class="muted">${plural(f.qtdAvaliacoes, 'avaliação', 'avaliações')}${f.percRecomenda != null ? ' · ' + f.percRecomenda + '% recomendam' : ''}</div>
+        </div>
+        ${f.ativo ? '<button class="btn" id="btAvaliar">Avaliar</button>' : ''}
+      </div>
+      <h3 style="margin:18px 0 4px">Relatos de atendimento</h3>
+      <div id="avaliacoes"><div class="loading">Carregando avaliações…</div></div>`;
+
+    if ($('btEditar')) $('btEditar').onclick = () => { fechar('mDetalhe'); abrirCadastro(f); };
+    if ($('btAvaliar')) $('btAvaliar').onclick = abrirAvaliacao;
+    if ($('btModForn')) $('btModForn').onclick = ev => comBotao(ev.target, async () => {
+      if (f.ativo && !confirm('Ocultar "' + f.Nome + '" para todos os moradores?')) return;
+      try {
+        await chamar('moderarFornecedor', { ID: f.ID, ativo: !f.ativo });
+        toast(f.ativo ? 'Fornecedor ocultado.' : 'Fornecedor reativado.');
+        await carregarApp(); verDetalhe(f.ID);
+      } catch (e) { toast(e.message); }
+    });
+    abrir('mDetalhe');
+    carregarAvaliacoes(f);
+  }
+
+  async function carregarAvaliacoes(f) {
+    const admin = ME.perfil === 'ADMIN';
+    try {
+      const avs = await chamar('avaliacoes', { fornecedorId: f.ID });
+      if (atual !== f) return;
+      $('avaliacoes').innerHTML = avs.length ? avs.map(a => `
+        <div class="aval ${a.visivel ? '' : 'oculta'}">
+          <div class="cab">
+            <div><span class="estrelas">${estrelas(a.Nota)}</span> <b>${esc(a.autor.nome)}</b>
+              <span class="muted">· ${esc(unidade(a.autor.bloco, a.autor.apto))}</span>${a.minha ? ' <span class="tag">você</span>' : ''}</div>
+            <span class="muted">${dataBr(a.DataRegistro)}</span>
+          </div>
+          <div class="crit">
+            ${a.ServicoRealizado ? '<span>🔧 ' + esc(a.ServicoRealizado) + '</span>' : ''}
+            ${a.Pontualidade ? '<span>Pontualidade ' + esc(a.Pontualidade) + '/5</span>' : ''}
+            ${a.Qualidade ? '<span>Qualidade ' + esc(a.Qualidade) + '/5</span>' : ''}
+            ${a.Preco ? '<span>Preço ' + esc(a.Preco) + '/5</span>' : ''}
+            <span>${a.Recomenda === 'Sim' ? '👍 Recomenda' : '👎 Não recomenda'}</span>
+          </div>
+          ${a.Relato ? '<p>' + esc(a.Relato) + '</p>' : ''}
+          ${admin ? `<div style="margin-top:6px"><button class="btn ${a.visivel ? 'perigo' : 'sec'} peq" data-av="${esc(a.ID)}" data-vis="${a.visivel ? '1' : ''}">
+              ${a.visivel ? 'Ocultar avaliação' : 'Exibir avaliação'}</button>${a.visivel ? '' : ' <span class="muted">oculta para moradores</span>'}</div>` : ''}
+        </div>`).join('') : '<p class="muted">Ninguém relatou atendimento ainda. Já contratou? Conte como foi!</p>';
+
+      $('avaliacoes').querySelectorAll('[data-av]').forEach(b => b.onclick = () => comBotao(b, async () => {
+        try {
+          await chamar('moderarAvaliacao', { ID: b.dataset.av, visivel: !b.dataset.vis });
+          toast(b.dataset.vis ? 'Avaliação ocultada.' : 'Avaliação exibida.');
+          await carregarApp(); verDetalhe(f.ID);
+        } catch (e) { toast(e.message); }
+      }));
+    } catch (e) {
+      $('avaliacoes').innerHTML = '<p class="erro">Erro: ' + esc(e.message) + '</p>';
+    }
+  }
+
+  /* ---------- cadastro / edição ---------- */
+  function abrirCadastro(f) {
+    const fm = $('fCadastro'); fm.reset();
+    $('erroCadastro').textContent = '';
+    $('cadTitulo').textContent = f ? 'Editar fornecedor' : 'Cadastrar fornecedor';
+    const marcadas = f ? f.categorias : [];
+    $('cadCategorias').innerHTML = DADOS.categorias
+      .filter(c => c.Ativa || marcadas.indexOf(c.ID) !== -1)
+      .map(c => `<label><input type="checkbox" name="cat" value="${esc(c.ID)}" ${marcadas.indexOf(c.ID) !== -1 ? 'checked' : ''}${c.Ativa ? '' : ' disabled'}> ${esc(c.Nome)}</label>`)
+      .join('') || '<span class="muted">Nenhuma categoria cadastrada.</span>';
+    fm.ID.value = f ? f.ID : '';
+    if (f) ['Nome','Servicos','Contato','Telefone','WhatsApp','Email','Site','Instagram','Endereco','AtendeCondominio','FaixaPreco','Observacoes']
+      .forEach(k => { if (fm[k]) fm[k].value = f[k] || ''; });
+
+    // Cidade: lista mantida pelo admin + "Outra" (texto livre)
+    const ativas = DADOS.cidades.filter(c => c.Ativa).map(c => c.Nome);
+    $('cadCidade').innerHTML = '<option value="">Não informada</option>' +
+      ativas.map(n => `<option>${esc(n)}</option>`).join('') + '<option value="__outra">Outra</option>';
+    const cid = f ? f.Cidade : '';
+    const naLista = ativas.indexOf(cid) !== -1;
+    $('cadCidade').value = !cid ? '' : (naLista ? cid : '__outra');
+    fm.CidadeTexto.value = cid && !naLista ? cid : '';
+    atualizarCidadeOutra();
+    const u = DADOS.usuario;
+    $('cadAutor').textContent = f ? 'A edição ficará registrada em seu nome (' + u.nome + ').'
+      : 'Será registrado como indicado por ' + u.nome + ' · Bloco ' + u.bloco + ' / Apto ' + u.apartamento + '.';
+    abrir('mCadastro');
+  }
+
+  $('fCadastro').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const fm = ev.target;
+    const dados = Object.fromEntries(new FormData(fm));
+    delete dados.cat;
+    dados.categorias = [...fm.querySelectorAll('input[name=cat]:checked')].map(i => i.value);
+    dados.CidadeOutra = dados.CidadeSel === '__outra';
+    dados.Cidade = dados.CidadeOutra ? dados.CidadeTexto.trim() : dados.CidadeSel;
+    delete dados.CidadeSel; delete dados.CidadeTexto;
+    $('erroCadastro').textContent = '';
+    if (!dados.categorias.length) { $('erroCadastro').textContent = 'Marque ao menos uma categoria.'; return; }
+    if (digitos(dados.Telefone).length < 10) { $('erroCadastro').textContent = 'Informe o telefone do fornecedor com DDD.'; return; }
+    if (dados.CidadeOutra && !dados.Cidade) { $('erroCadastro').textContent = 'Informe o nome da cidade.'; return; }
+    comBotao(fm.querySelector('[type=submit]'), async () => {
+      try {
+        const id = await chamar('salvarFornecedor', dados);
+        fechar('mCadastro');
+        toast(dados.ID ? 'Fornecedor atualizado.' : 'Fornecedor cadastrado. Obrigado pela indicação!');
+        await carregarApp();
+        verDetalhe(id);
+      } catch (e) { $('erroCadastro').textContent = e.message; }
+    });
+  });
+
+  function atualizarCidadeOutra() {
+    const outra = $('cadCidade').value === '__outra';
+    $('lblCidadeOutra').hidden = !outra;
+    $('fCadastro').CidadeTexto.required = outra;
+  }
+  $('cadCidade').addEventListener('change', () => {
+    atualizarCidadeOutra();
+    if (!$('lblCidadeOutra').hidden) $('fCadastro').CidadeTexto.focus();
+  });
+
+  /* ---------- avaliação ---------- */
+  function montarEstrelas() {
+    document.querySelectorAll('.star-input').forEach(box => {
+      const campo = box.dataset.campo;
+      box.innerHTML = [1, 2, 3, 4, 5].map(n => `<button type="button" data-n="${n}" aria-label="${n} estrela${n > 1 ? 's' : ''}">★</button>`).join('');
+      box.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        const n = Number(b.dataset.n);
+        notas[campo] = (notas[campo] === n && campo !== 'Nota') ? 0 : n;
+        pintar(box, notas[campo]);
+      });
+    });
+  }
+  function pintar(box, n) { box.querySelectorAll('button').forEach(b => b.classList.toggle('on', Number(b.dataset.n) <= n)); }
+
+  function abrirAvaliacao() {
+    const fm = $('fAvaliar'); fm.reset(); $('erroAvaliar').textContent = '';
+    Object.keys(notas).forEach(k => delete notas[k]);
+    document.querySelectorAll('.star-input').forEach(b => pintar(b, 0));
+    $('avaliarNome').textContent = atual.Nome;
+    const u = DADOS.usuario;
+    $('avAutor').textContent = 'Será publicada como ' + u.nome + ' · Bloco ' + u.bloco + ' / Apto ' + u.apartamento + '.';
+    abrir('mAvaliar');
+  }
+
+  $('fAvaliar').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const fm = ev.target;
+    if (!notas.Nota) { $('erroAvaliar').textContent = 'Escolha a nota geral (1 a 5 estrelas).'; return; }
+    const dados = Object.assign(Object.fromEntries(new FormData(fm)), {
+      FornecedorID: atual.ID, Nota: notas.Nota,
+      Pontualidade: notas.Pontualidade || '', Qualidade: notas.Qualidade || '', Preco: notas.Preco || ''
+    });
+    $('erroAvaliar').textContent = '';
+    comBotao(fm.querySelector('[type=submit]'), async () => {
+      try {
+        await chamar('salvarAvaliacao', dados);
+        fechar('mAvaliar'); toast('Avaliação registrada. Obrigado!');
+        const id = atual.ID;
+        await carregarApp();
+        verDetalhe(id);
+      } catch (e) { $('erroAvaliar').textContent = e.message; }
+    });
+  });
+
+  /* ---------- administração ---------- */
+  async function carregarAdmin() {
+    renderListasAdmin();
+    $('admPendentes').innerHTML = $('admUsuarios').innerHTML = '<div class="loading">Carregando…</div>';
+    try {
+      USUARIOS = await chamar('listarUsuarios');
+      renderUsuariosAdmin();
+    } catch (e) {
+      $('admPendentes').innerHTML = '<p class="erro">' + esc(e.message) + '</p>';
+      $('admUsuarios').innerHTML = '';
+    }
+  }
+
+  function renderUsuariosAdmin() {
+    const pend = USUARIOS.filter(u => u.Status === 'PENDENTE');
+    $('badgePend').hidden = !pend.length; $('badgePend').textContent = pend.length;
+    $('admPendentes').innerHTML = pend.length ? pend.map(u => `
+      <div class="linha">
+        <div class="info"><b>${esc(u.Nome)}</b><span class="muted">Bloco ${esc(u.Bloco)} · Apto ${esc(u.Apartamento)} · ${esc(u.Email)} · pediu em ${dataBr(u.DataSolicitacao)}</span></div>
+        <button class="btn peq" data-email="${esc(u.Email)}" data-st="APROVADO">Aprovar</button>
+        <button class="btn perigo peq" data-email="${esc(u.Email)}" data-st="RECUSADO">Recusar</button>
+      </div>`).join('') : '<p class="muted">Nenhuma solicitação aguardando.</p>';
+
+    const termo = semAcento($('buscaUsuarios').value.trim());
+    const lista = USUARIOS.filter(u => !termo || semAcento([u.Nome, u.Bloco, u.Apartamento, u.Email].join(' ')).includes(termo));
+    $('admUsuarios').innerHTML = lista.length ? lista.map(u => `
+      <div class="linha">
+        <div class="info"><b>${esc(u.Nome)}</b><span class="muted">Bloco ${esc(u.Bloco)} · Apto ${esc(u.Apartamento)} · ${esc(u.Email)}</span></div>
+        <select data-email="${esc(u.Email)}" data-campo="status">
+          ${['PENDENTE','APROVADO','RECUSADO','BLOQUEADO'].map(s => `<option ${s === u.Status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+        <select data-email="${esc(u.Email)}" data-campo="perfil">
+          ${['MORADOR','ADMIN'].map(s => `<option ${s === u.Perfil ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>`).join('') : '<p class="muted">Nenhum morador encontrado.</p>';
+  }
+  $('buscaUsuarios').addEventListener('input', renderUsuariosAdmin);
+
+  async function alterarUsuario(email, mudanca, el) {
+    try {
+      await chamar('decidirUsuario', Object.assign({ email: email }, mudanca));
+      toast('Morador atualizado.');
+    } catch (e) { toast(e.message); }
+    try { USUARIOS = await chamar('listarUsuarios'); } catch (e) {}
+    renderUsuariosAdmin();
+  }
+  $('admPendentes').addEventListener('click', e => {
+    const b = e.target.closest('button[data-email]'); if (!b) return;
+    comBotao(b, () => alterarUsuario(b.dataset.email, { status: b.dataset.st }));
+  });
+  $('admUsuarios').addEventListener('change', e => {
+    const s = e.target.closest('select[data-email]'); if (!s) return;
+    s.disabled = true;
+    alterarUsuario(s.dataset.email, { [s.dataset.campo]: s.value });
+  });
+
+  // Listas mantidas pelo admin: mesma tela para categorias e cidades
+  const LISTAS = {
+    categorias: { box: 'admCategorias', form: 'fNovaCat', acao: 'salvarCategoria', vazio: 'Nenhuma categoria.',
+                  salvo: 'Categoria salva.', incluido: 'Categoria incluída.',
+                  usos: (f, item) => f.categorias.indexOf(item.ID) !== -1 },
+    cidades:    { box: 'admCidades', form: 'fNovaCidade', acao: 'salvarCidade', vazio: 'Nenhuma cidade.',
+                  salvo: 'Cidade salva.', incluido: 'Cidade incluída.',
+                  usos: (f, item) => f.Cidade === item.Nome }
+  };
+
+  function renderListasAdmin() {
+    Object.keys(LISTAS).forEach(chave => {
+      const L = LISTAS[chave], itens = DADOS[chave];
+      $(L.box).innerHTML = itens.length ? itens.map(c => `
+        <div class="linha" data-id="${esc(c.ID)}">
+          <input type="text" value="${esc(c.Nome)}" maxlength="60" style="flex:1 1 200px">
+          <label style="flex-direction:row;align-items:center;gap:6px;font-weight:500"><input type="checkbox" ${c.Ativa ? 'checked' : ''} style="width:auto"> ativa</label>
+          <span class="muted">${plural(DADOS.fornecedores.filter(f => L.usos(f, c)).length, 'fornecedor', 'fornecedores')}</span>
+          <button class="btn sec peq">Salvar</button>
+        </div>`).join('') : '<p class="muted">' + L.vazio + '</p>';
+    });
+  }
+
+  Object.keys(LISTAS).forEach(chave => {
+    const L = LISTAS[chave];
+    $(L.box).addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const linha = b.closest('.linha');
+      comBotao(b, async () => {
+        try {
+          await chamar(L.acao, { ID: linha.dataset.id, Nome: linha.querySelector('input[type=text]').value, Ativa: linha.querySelector('input[type=checkbox]').checked });
+          toast(L.salvo);
+          await carregarApp('admin');
+        } catch (err) { toast(err.message); }
+      });
+    });
+    $(L.form).addEventListener('submit', ev => {
+      ev.preventDefault();
+      const fm = ev.target;
+      comBotao(fm.querySelector('button'), async () => {
+        try {
+          await chamar(L.acao, { Nome: fm.Nome.value, Ativa: true });
+          fm.reset(); toast(L.incluido);
+          await carregarApp('admin');
+        } catch (err) { toast(err.message); }
+      });
+    });
+  });
+
+  montarEstrelas();
+  ID_TOKEN = lerToken();
+  prepararLogin();
+  iniciar();
+</script>
+</body>
+</html>
