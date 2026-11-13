@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Manual Prestadores Green Village</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,6 +136,15 @@
   .cel .estrelas-in b { color: var(--star); font-weight: 400; }
   .cel .rel { border-top: 1px solid var(--phone-edge); padding-top: 6px; display: grid; gap: 2px; }
 
+  .cel .home { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 6px; padding: 8px 2px; }
+  .cel .app { display: grid; justify-items: center; gap: 3px; font-size: 9.5px; color: var(--muted); }
+  .cel .app i { width: 38px; height: 38px; border-radius: 10px; background: var(--phone-edge); display: block; }
+  .cel .app img { width: 38px; height: 38px; border-radius: 10px; display: block; }
+  .cel .app b { color: var(--fg); font-weight: 600; }
+  .lado { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .lado > div { display: grid; gap: 6px; align-content: start; }
+  .lado ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 15px; }
+  @media (max-width: 520px) { .lado { grid-template-columns: 1fr; } }
   /* Dúvidas */
   details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
   summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
@@ -270,6 +281,29 @@
         <div class="resumo"><b>Nome do morador</b><br>Bloco A · Apartamento 101<br><span class="sub">seuemail@gmail.com</span></div>
         <span class="sub">Você receberá um e-mail quando for aprovado.</span>
         <div class="dupla"><span class="vbtn">Verificar novamente</span><span class="vbtn sec">Corrigir meus dados</span></div>
+      </div>
+    </div>
+
+    <div class="passo">
+      <div class="txt">
+        <span class="num">Dica</span>
+        <h3>Crie um atalho na tela de início</h3>
+        <p>Assim o app fica com o ícone <b>Prestadores</b> no celular, igual a um aplicativo. No app, toque em <span class="toque">📲 Adicionar à tela de início</span>, no rodapé, ou siga os passos:</p>
+        <div class="lado">
+          <div><b>iPhone (Safari)</b>
+            <ol><li>Toque em <b>Compartilhar</b> (quadrado com seta ⬆️).</li><li><b>Adicionar à Tela de Início</b>.</li><li><b>Adicionar</b>.</li></ol></div>
+          <div><b>Android (Chrome)</b>
+            <ol><li>Toque nos <b>três pontinhos ⋮</b>.</li><li><b>Adicionar à tela inicial</b> (ou <b>Instalar app</b>).</li><li><b>Adicionar</b>.</li></ol></div>
+        </div>
+        <p class="calma">No iPhone, o atalho só pode ser criado pelo Safari. O atalho abre o app no navegador, já com o seu login.</p>
+      </div>
+      <div class="cel" aria-hidden="true">
+        <div class="barra"></div>
+        <div class="home">
+          <span class="app"><i></i>Fotos</span><span class="app"><i></i>Mapas</span><span class="app"><i></i>Banco</span><span class="app"><i></i>Clima</span>
+          <span class="app"><i></i>Agenda</span><span class="app alvo" style="border-radius:12px"><img src="data:image/png;base64,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" alt=""><b>Prestadores</b></span><span class="app"><i></i>Notas</span><span class="app"><i></i>Música</span>
+          <span class="app"><i></i>Câmera</span><span class="app"><i></i>Ajustes</span><span class="app"><i></i>E-mail</span><span class="app"><i></i>Loja</span>
+        </div>
       </div>
     </div>
   </section>

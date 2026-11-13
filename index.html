@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Prestadores de Serviço · Green Village</title>
 <meta name="robots" content="noindex">
+<!-- Atalho na tela de início (abre no navegador, para o login com Google funcionar sempre) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Prestadores">
+<meta name="application-name" content="Prestadores">
+<meta name="theme-color" content="#2e7d32">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
@@ -284,9 +291,23 @@
   </div>
 </main>
 
-<footer><a href="manual.html" target="_blank" rel="noopener">Manual do app</a> · <a href="#" id="linkTermo">Termo de Uso e Privacidade</a> · <a href="privacidade.html">Política de Privacidade</a> · Uso exclusivo dos moradores do Green Village Residence
+<footer><p style="margin:0 0 10px"><button class="btn sec peq" id="btAtalho" type="button">📲 Adicionar à tela de início</button></p>
+<a href="manual.html" target="_blank" rel="noopener">Manual do app</a> · <a href="#" id="linkTermo">Termo de Uso e Privacidade</a> · <a href="privacidade.html">Política de Privacidade</a> · Uso exclusivo dos moradores do Green Village Residence
   <p class="credito">Idealizado e desenvolvido voluntariamente por Marco Antonio (Bloco A · Apto 802), sem custos para o condomínio. Dúvidas: <a href="mailto:contato.greenvillage@gmail.com">contato.greenvillage@gmail.com</a></p>
 </footer>
+
+<!-- Atalho na tela de início -->
+<div class="modal" id="mAtalho">
+  <div class="caixa">
+    <button class="fechar" onclick="fechar('mAtalho')" aria-label="Fechar">×</button>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:6px">
+      <img src="icon-192.png" alt="" width="56" height="56" style="border-radius:13px;flex:none">
+      <div><h2 style="margin:0">Atalho na tela de início</h2>
+        <p class="muted" style="margin:2px 0 0">O app fica com este ícone, igual a um aplicativo.</p></div>
+    </div>
+    <div id="atalhoPassos"></div>
+  </div>
+</div>
 
 <!-- Termo (releitura) -->
 <div class="modal" id="mTermo">
@@ -984,6 +1005,58 @@
         } catch (err) { toast(err.message); }
       });
     });
+  });
+
+  /* ---------- atalho na tela de início ---------- */
+  let pedidoInstalar = null;   // Android/Chrome, quando o navegador oferece instalar
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedidoInstalar = e; });
+
+  function passosAtalho() {
+    const ua = navigator.userAgent;
+    const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const android = /Android/.test(ua);
+    const appInterno = /WhatsApp|FBAN|FBAV|Instagram|Line\//.test(ua);
+    const lista = itens => '<ol style="margin:10px 0 0;padding-left:22px;display:grid;gap:8px">' + itens.map(i => '<li>' + i + '</li>').join('') + '</ol>';
+    const iphone = lista([
+      'Toque no botão <b>Compartilhar</b> <span aria-hidden="true">(o quadrado com a seta para cima ⬆️)</span>, na barra do Safari.',
+      'Role a lista e toque em <b>Adicionar à Tela de Início</b>.',
+      'Confira o nome <b>Prestadores</b> e toque em <b>Adicionar</b>.'
+    ]);
+    const androidPassos = lista([
+      'Toque nos <b>três pontinhos ⋮</b>, no canto superior do Chrome.',
+      'Toque em <b>Adicionar à tela inicial</b> (em alguns aparelhos: <b>Instalar app</b>).',
+      'Confira o nome <b>Prestadores</b> e toque em <b>Adicionar</b>.'
+    ]);
+
+    if (appInterno) {
+      return '<p class="aviso">Você está no navegador de dentro do WhatsApp (ou de outro app), que não cria atalhos. ' +
+        'Toque nos <b>três pontinhos</b> e escolha <b>Abrir no navegador</b>' + (ios ? ' (Safari)' : ' (Chrome)') + '. Depois toque de novo em “Adicionar à tela de início”.</p>';
+    }
+    if (ios) {
+      if (/CriOS|FxiOS|EdgiOS/.test(ua)) {
+        return '<p class="aviso">No iPhone, o atalho só pode ser criado pelo <b>Safari</b>. Abra este endereço no Safari:</p>' +
+          '<p style="word-break:break-all"><b>' + esc(location.origin + location.pathname) + '</b></p>' + iphone;
+      }
+      return '<p>No iPhone, faça assim:</p>' + iphone;
+    }
+    if (android) {
+      return (pedidoInstalar ? '<p><button class="btn" id="btInstalarAgora" type="button">Adicionar agora</button></p><p class="muted">Ou, pelo menu do Chrome:</p>' : '<p>No Android, faça assim:</p>') + androidPassos;
+    }
+    return '<p>O atalho é para o celular. Abra <b>' + esc(location.origin + location.pathname) + '</b> no celular e toque em “Adicionar à tela de início”.</p>' +
+      '<p style="margin-top:12px"><b>iPhone (Safari)</b></p>' + iphone +
+      '<p style="margin-top:12px"><b>Android (Chrome)</b></p>' + androidPassos;
+  }
+
+  $('btAtalho').addEventListener('click', () => {
+    $('atalhoPassos').innerHTML = passosAtalho();
+    const bt = $('btInstalarAgora');
+    if (bt) bt.onclick = async () => {
+      pedidoInstalar.prompt();
+      try { await pedidoInstalar.userChoice; } catch (e) {}
+      pedidoInstalar = null;
+      fechar('mAtalho');
+    };
+    abrir('mAtalho');
   });
 
   montarEstrelas();
